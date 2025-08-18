@@ -35,7 +35,6 @@ services:
         fromDatabase:
           name: laravel-blog-db
           property: password
-    runtime: php
     scaling:
       minInstances: 1
       maxInstances: 1
