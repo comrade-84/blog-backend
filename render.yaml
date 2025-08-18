@@ -1,21 +1,30 @@
 services:
   - type: web
     name: laravel-blog-api
-    runtime: php
     buildCommand: "./render-build.sh"
     startCommand: "php artisan serve --host 0.0.0.0 --port $PORT"
+    env: php
     plan: free
     region: oregon
-    env:
-      - key: PHP_VERSION
-        value: 8.2
+    runtime: "php"
+    buildFilter:
+      paths:
+      - vendor/**
+      - composer.json
+      - composer.lock
     envVars:
+      - key: APP_NAME
+        value: BlogSphere
       - key: APP_KEY
         generateValue: true
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
@@ -38,9 +47,14 @@ services:
         fromDatabase:
           name: laravel-blog-db
           property: password
+      - key: APP_URL
+        fromService:
+          name: laravel-blog-api
+          type: web
+          property: url
 
 databases:
   - name: laravel-blog-db
-    databaseName: laravel_blog
     plan: free
     ipAllowList: []
+    postgresMajorVersion: 15
