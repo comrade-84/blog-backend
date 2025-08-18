@@ -3,6 +3,9 @@
     "name": "laravel/laravel",
     "type": "project",
     "description": "The skeleton application for the Laravel framework.",
+    "engines": {
+        "php": "8.2.x"
+    },
     "keywords": [
         "laravel",
         "framework"
