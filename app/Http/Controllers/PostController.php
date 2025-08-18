@@ -16,26 +16,47 @@ public function index(Request $request)
 {
     $userId = Auth::id();
     $sort = $request->query('sort', 'latest'); // default sort
-    $perPage = (int) $request->query('per_page', 10); // default per page
+    $perPage = $request->query('per_page') === 'all' ? null : (int) $request->query('per_page', 10); // handle 'all' or default to 10
+    $userPosts = $request->query('user_posts', false); // filter for user's posts
+    $status = $request->query('status'); // filter by status (draft/published)
 
-    $query = Post::with('user:id,name')
-        ->withCount(['likes', 'comments'])
-        ->orderBy(
-            match ($sort) {
-                'likes' => 'likes_count',
-                'views' => 'views_count',
-                'comments' => 'comments_count',
-                default => 'created_at',
-            },
-            'desc'
-        );
+    $query = Post::with(['user:id,name,avatar'])
+        ->withCount(['likes', 'comments']);
 
-    $posts = $query->paginate($perPage);
+    // Always filter by user for getUserPosts endpoint
+    if ($request->is('api/posts/user') || $userPosts) {
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
+        $query->where('user_id', $userId);
+    }
+
+    // Filter by status if specified
+    if ($status) {
+        $query->where('status', $status);
+    }
+
+    // Apply sorting
+    $query->orderBy(
+        match ($sort) {
+            'likes' => 'likes_count',
+            'views' => 'views_count',
+            'comments' => 'comments_count',
+            default => 'created_at',
+        },
+        'desc'
+    );
+
+    $posts = $perPage ? $query->paginate($perPage) : $query->get();
 
     // Append full URL for images + liked status
-    $posts->getCollection()->transform(function ($post) use ($userId) {
+    $collection = $posts instanceof \Illuminate\Pagination\LengthAwarePaginator ? $posts->getCollection() : $posts;
+    $collection->transform(function ($post) use ($userId) {
         if ($post->featured_image && !str_starts_with($post->featured_image, 'http')) {
             $post->featured_image = asset('storage/' . $post->featured_image);
+        }
+        if ($post->user && $post->user->avatar) {
+            $post->user->avatar_url = asset('storage/' . $post->user->avatar);
         }
         $post->liked = $userId ? $post->likes()->where('user_id', $userId)->exists() : false;
         return $post;

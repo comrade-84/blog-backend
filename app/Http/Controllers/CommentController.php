@@ -22,13 +22,13 @@ class CommentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $comment->load('user:id,name')
+            'data' => $comment->load('user:id,name,avatar')
         ], 201);
     }
 
     public function index(Post $post)
     {
-        $comments = $post->comments()->with('user:id,name')->latest()->get();
+        $comments = $post->comments()->with('user:id,name,avatar')->latest()->get();
 
         return response()->json([
             'success' => true,
