@@ -1,12 +1,14 @@
 services:
   - type: web
     name: laravel-blog-api
-    env: php
-    phpVersion: 8.2
+    runtime: php
     buildCommand: "./render-build.sh"
     startCommand: "php artisan serve --host 0.0.0.0 --port $PORT"
     plan: free
     region: oregon
+    env:
+      - key: PHP_VERSION
+        value: 8.2
     envVars:
       - key: APP_KEY
         generateValue: true
