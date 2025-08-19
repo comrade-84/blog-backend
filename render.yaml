@@ -24,7 +24,7 @@ services:
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL
-        value: info
+        value: debug
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_HOST
@@ -52,6 +52,22 @@ services:
           name: laravel-blog-api
           type: web
           property: url
+      - key: FILESYSTEM_DISK
+        value: public
+      - key: SESSION_DRIVER
+        value: file
+      - key: SESSION_LIFETIME
+        value: "120"
+      - key: CACHE_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
+      - key: SANCTUM_STATEFUL_DOMAINS
+        value: "" # You'll need to set this after frontend deployment
+      - key: SESSION_DOMAIN
+        value: "" # You'll need to set this after getting your render domain
+      - key: FRONTEND_URL
+        value: "" # You'll need to set this after frontend deployment
 
 databases:
   - name: laravel-blog-db
