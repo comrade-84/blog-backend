@@ -6,7 +6,6 @@ services:
     env: php
     plan: free
     region: oregon
-    runtime: "php"
     buildFilter:
       paths:
       - vendor/**
@@ -51,7 +50,7 @@ services:
         fromService:
           name: laravel-blog-api
           type: web
-          property: url
+          property: host
       - key: FILESYSTEM_DISK
         value: public
       - key: SESSION_DRIVER
